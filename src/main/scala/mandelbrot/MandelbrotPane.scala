@@ -8,7 +8,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import javax.swing.JPanel
 
-final class MandelbrotImagePane(var mandelbrotImage: MandelbrotImage) extends JPanel with MouseListener with KeyListener {
+final class MandelbrotImagePane(val mandelbrotImage: MandelbrotImage) extends JPanel with MouseListener with KeyListener {
   addMouseListener(this)
   enableEvents(AWTEvent.KEY_EVENT_MASK)
   addKeyListener(this)
@@ -39,22 +39,22 @@ final class MandelbrotImagePane(var mandelbrotImage: MandelbrotImage) extends JP
   override def isFocusable = true
 
   override def keyTyped(e: KeyEvent): Unit = {
-    var changed = true
-    e.getKeyChar match {
+    if (e.getKeyChar match {
       case '+' =>
         mandelbrotImage.scaleBy(0.5)
+        true
       case '-' =>
         mandelbrotImage.scaleBy(2)
+        true
       case _ =>
-        changed = false
-    }
-    if (changed) this.repaint()
+        false
+    }) this.repaint()
   }
 
-  override def mousePressed(e: MouseEvent): Unit = {}
-  override def mouseReleased(e: MouseEvent): Unit = {}
-  override def mouseEntered(e: MouseEvent): Unit = {}
-  override def mouseExited(e: MouseEvent): Unit = {}
-  override def keyPressed(e: KeyEvent): Unit = {}
-  override def keyReleased(e: KeyEvent): Unit = {}
+  override def mousePressed(e: MouseEvent): Unit = ()
+  override def mouseReleased(e: MouseEvent): Unit = ()
+  override def mouseEntered(e: MouseEvent): Unit = ()
+  override def mouseExited(e: MouseEvent): Unit = ()
+  override def keyPressed(e: KeyEvent): Unit = ()
+  override def keyReleased(e: KeyEvent): Unit = ()
 }

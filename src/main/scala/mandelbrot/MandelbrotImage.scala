@@ -13,7 +13,7 @@ object MandelbrotImage {
   private val SCREEN_DIMENSION = Toolkit.getDefaultToolkit.getScreenSize
   private val BUFFER_WIDTH = SCREEN_DIMENSION.width
   private val BUFFER_HEIGHT = SCREEN_DIMENSION.height
-  private val MAX_ITERATION = 4000
+  val MAX_ITERATION = 4000
 
   def compute(x0: Double, y0: Double): Int = {
     @tailrec
@@ -28,7 +28,10 @@ object MandelbrotImage {
 }
 
 final class MandelbrotImage(var originX: Double, var originY: Double, var scale: Double) {
-  private var image = new BufferedImage(MandelbrotImage.BUFFER_WIDTH, MandelbrotImage.BUFFER_HEIGHT, BufferedImage.TYPE_INT_RGB)
+  private var image = new BufferedImage(
+    MandelbrotImage.BUFFER_WIDTH,
+    MandelbrotImage.BUFFER_HEIGHT,
+    BufferedImage.TYPE_3BYTE_BGR)
   private var x0 = 0.0
   private var y0 = 0.0
   private val repaintListeners = new util.ArrayList[Component]
@@ -38,38 +41,40 @@ final class MandelbrotImage(var originX: Double, var originY: Double, var scale:
   def zoomTo(originX: Double, originY: Double, scale: Double): Unit = {
     x0 = originX
     y0 = originY
-    recalculate()
+    recalculateAndRepaint()
   }
 
   def panTo(originX: Double, originY: Double): Unit = {
     x0 = originX
     y0 = originY
-    recalculate()
+    recalculateAndRepaint()
   }
 
   def scaleTo(scale: Double): Unit = {
     this.scale = scale
-    recalculate()
+    recalculateAndRepaint()
   }
 
   def scaleBy(factor: Double): Unit = {
     scale *= factor
-    recalculate()
+    recalculateAndRepaint()
   }
 
-  private def recalculate(): Unit = {
+  private def getColor(value: Int) = Color.HSBtoRGB(
+    (360F * value) / MandelbrotImage.MAX_ITERATION,
+    1.0F,
+    if (value >= MandelbrotImage.MAX_ITERATION) 0.0F else 1F)
 
-    for {
-      y <- 0 until MandelbrotImage.BUFFER_HEIGHT;
-      x <- 0 until MandelbrotImage.BUFFER_WIDTH
-    }
-    {
-      val value: Int = MandelbrotImage.compute(getX(x), getY(y))
-      image.setRGB(x, y, Color.HSBtoRGB(
-        (360 * value) / 4000.0F,
-        1.0F,
-        if (value == 4000) 0.0F else 0.5F))
-    }
+  // Simple sequential calculation
+  private def recalculate(): Unit = for {
+    y <- 0 until MandelbrotImage.BUFFER_HEIGHT
+    x <- 0 until MandelbrotImage.BUFFER_WIDTH
+    value: Int = MandelbrotImage.compute(getX(x), getY(y))
+  } image.setRGB(x, y, getColor(value))
+
+
+  private def recalculateAndRepaint(): Unit = {
+    recalculate()
     notifyListeners()
   }
 
