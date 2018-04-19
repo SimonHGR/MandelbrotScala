@@ -72,9 +72,11 @@ final class MandelbrotImage(var originX: Double, var originY: Double, var scale:
     value: Int = MandelbrotImage.compute(getX(x), getY(y))
   } image.setRGB(x, y, getColor(value))
 
-
   private def recalculateAndRepaint(): Unit = {
+    val start = System.nanoTime()
     recalculate()
+    val time = System.nanoTime() - start
+    println(f"Calculation time ${time/1000000000.0}%7.3f seconds")
     notifyListeners()
   }
 
