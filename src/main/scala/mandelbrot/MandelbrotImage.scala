@@ -7,23 +7,23 @@ import java.awt.image.BufferedImage
 import java.awt.Image
 import java.util
 
+import scala.annotation.tailrec
+
 object MandelbrotImage {
   private val SCREEN_DIMENSION = Toolkit.getDefaultToolkit.getScreenSize
   private val BUFFER_WIDTH = SCREEN_DIMENSION.width
   private val BUFFER_HEIGHT = SCREEN_DIMENSION.height
+  private val MAX_ITERATION = 4000
 
   def compute(x0: Double, y0: Double): Int = {
-    var x = 0.0
-    var y = 0.0
-    var iteration = 0
-    val max_iteration = 4000
-    while ((x * x + y * y) < 4 && iteration < max_iteration) {
-      val xtemp = x * x - y * y + x0
-      y = 2 * x * y + y0
-      x = xtemp
-      iteration += 1
+    @tailrec
+    def compute0(x: Double, y: Double, iteration: Int): Int = {
+      if ((x * x + y * y) < 4 && iteration < MAX_ITERATION) {
+        val (nX, nY) = (x * x - y * y + x0, 2 * x * y + y0)
+        compute0(nX, nY, iteration + 1)
+      } else iteration
     }
-    iteration
+    compute0(x0, y0, 0)
   }
 }
 
