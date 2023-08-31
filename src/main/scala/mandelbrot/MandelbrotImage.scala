@@ -66,11 +66,21 @@ final class MandelbrotImage(var originX: Double, var originY: Double, var scale:
     if (value >= MandelbrotImage.MAX_ITERATION) 0.0F else 1F)
 
   // Simple sequential calculation
-  private def recalculate(): Unit = for {
-    y <- 0 until MandelbrotImage.BUFFER_HEIGHT
-    x <- 0 until MandelbrotImage.BUFFER_WIDTH
-    value: Int = MandelbrotImage.compute(getX(x), getY(y))
-  } image.setRGB(x, y, getColor(value))
+
+  private def recalculate(): Unit = {
+    var x = 0
+    var y = 0
+    while (y < MandelbrotImage.BUFFER_HEIGHT) {
+      x = 0
+      while (x < MandelbrotImage.BUFFER_WIDTH) {
+        var value = MandelbrotImage.compute(getX(x), getY(y))
+        var color = getColor(value)
+        image.setRGB(x, y, color)
+        x += 1
+      }
+      y += 1
+    }
+  }
 
   private def recalculateAndRepaint(): Unit = {
     val start = System.nanoTime()
